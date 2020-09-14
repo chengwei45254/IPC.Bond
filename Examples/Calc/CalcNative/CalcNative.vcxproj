@@ -72,7 +72,7 @@
       <PreprocessorDefinitions>_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PreBuildEvent>
-      <Command>$(SolutionDir)\IPC\packages\Bond.Compiler.8.2.0\tools\gbc.exe c++ -o=$(MSBuildProjectDirectory)\generated $(MSBuildProjectDirectory)\..\Calc.bond</Command>
+      <Command>$(SolutionDir)\IPC\packages\Bond.Compiler.9.0.3\tools\gbc.exe c++ -o=$(MSBuildProjectDirectory)\generated $(MSBuildProjectDirectory)\..\Calc.bond</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -87,7 +87,7 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
     <PreBuildEvent>
-      <Command>$(SolutionDir)\IPC\packages\Bond.Compiler.8.2.0\tools\gbc.exe c++ -o=$(MSBuildProjectDirectory)\generated $(MSBuildProjectDirectory)\..\Calc.bond</Command>
+      <Command>$(SolutionDir)\IPC\packages\Bond.Compiler.9.0.3\tools\gbc.exe c++ -o=$(MSBuildProjectDirectory)\generated $(MSBuildProjectDirectory)\..\Calc.bond</Command>
     </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

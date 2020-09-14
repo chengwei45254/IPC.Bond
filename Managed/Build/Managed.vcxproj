@@ -55,7 +55,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <Reference Include="Bond">
-      <HintPath>..\..\IPC\Packages\Bond.Core.CSharp.8.2.0\lib\net46\Bond.dll</HintPath>
+      <HintPath>..\..\IPC\Packages\Bond.Core.CSharp.9.0.3\lib\net46\Bond.dll</HintPath>
     </Reference>
     <Reference Include="IPC.Managed">
       <HintPath>..\..\IPC\$(Platform)\$(Configuration)\IPC.Managed.dll</HintPath>

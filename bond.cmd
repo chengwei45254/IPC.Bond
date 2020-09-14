@@ -6,7 +6,7 @@
 @set PreferredToolArchitecture=x64
 @set BOOST_ROOT=%CD%\IPC\packages\boost.1.71.0.0\lib\native\include
 @set BOOST_LIBRARYDIR=%CD%\IPC\packages\boost.1.71.0.0
-@set BOND_GBC_PATH=%CD%\IPC\packages\Bond.Compiler.8.2.0\tools
+@set BOND_GBC_PATH=%CD%\IPC\packages\Bond.Compiler.9.0.3\tools
 
 @mkdir bond\build\target\%config%
 @pushd bond\build
