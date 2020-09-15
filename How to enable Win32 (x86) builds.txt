@@ -1,0 +1,53 @@
+As of 2020/9/14:
+
+1. Fork IPC.Bond, IPC, and Bond repositories. For the forked IPC.Bond, change its IPC and Bond submodules to the forked versions too by following this link:
+   https://stackoverflow.com/questions/14404704/how-do-i-replace-a-git-submodule-with-another-repo
+
+2. To solve the problem of https://github.com/microsoft/bond/issues/1027, we must change Bond submodule from 8.2.0 to 9.0.0 or above.
+   Open IPC.Bond\bond submodule from Git Extensions, create a new branch at tag "9.0.3", and update submodules (thirdparty/grpc and thirdparty/rapidjson, recursively)
+   To make sure we've changed Bond source to 9.0.3, check d:\GitHub\chengwei45254\IPC.Bond\bond\cpp\inc\bond\core\bond_version.h that it should contain the following line:
+   #define BOND_VERSION 0x0902
+   
+3. From IPC.Bond root folder, find the following files and change all their references to Bond version from 8.2.0 to 9.0.3:
+   d:\GitHub\microsoft\IPC.Bond\bond.cmd
+   d:\GitHub\microsoft\IPC.Bond\Examples\Calc\CalcManaged\CalcManaged.csproj
+   d:\GitHub\microsoft\IPC.Bond\Examples\Calc\CalcNative\CalcNative.vcxproj
+   d:\GitHub\microsoft\IPC.Bond\Examples\Calc\CalcNative\packages.config
+   d:\GitHub\microsoft\IPC.Bond\Managed\Build\Managed.vcxproj
+   d:\GitHub\microsoft\IPC.Bond\Managed\Build\packages.config
+   d:\GitHub\microsoft\IPC.Bond\Transport\packages.config
+   d:\GitHub\microsoft\IPC.Bond\Transport\Transport.csproj
+   d:\GitHub\microsoft\IPC.Bond\UnitTestsManaged\packages.config
+   d:\GitHub\microsoft\IPC.Bond\UnitTestsManaged\UnitTestsManaged.csproj
+   
+4. Now go up to the IPC.Bond repository, create a branch "enable_win32_x86_builds", and commit the changes made in step 2 and 3. Set the commit message "Update Bond submodule to 9.0.3 to avoid https://github.com/microsoft/bond/issues/1027".
+   
+5. Now we can try to follow the Build instruction from IPC.Bond README.md (https://github.com/chengwei45254/IPC.Bond) using Visual Studio 2019:
+   (1). Restore NuGet packages for IPC.Bond.sln by right-clicking the solution node and select "Restore NuGet Packages".
+        This will take a few minutes to finish, and you should see "NuGet package restore finished." message displayed from Package Manager output pane. And you should see that "d:\GitHub\chengwei45254\IPC.Bond\IPC\Packages" folder is created and it contains the downloaded NuGet packages.
+   (2). Build the Bond (only core C++) submodule using helper bond.cmd script.
+        Note that you must run the script from the Developer Command Prompt for VS 2019.
+        And note that this will by default build the Debug x64 version of the bond library.
+   (3). Build the Debug x64 IPC submodule using IPC.sln (Transport.csproj only).
+   (4). Build the Debug x64 IPC.Bond.sln.
+   After all these steps go successfully, we can go to the output folder x64\Debug, run "CalcNative.exe --server" and "CalcNative.exe --client", and we should see the IPC communication going smoothly between the two processes.
+
+6. The native Debug x64 IPC, bond, and IPC.Bond libraries are located at:
+   d:\GitHub\microsoft\IPC.Bond\IPC\x64\Debug\IPC.lib
+   d:\GitHub\microsoft\IPC.Bond\bond\build\target\Debug\lib\bond\bond.lib
+   d:\GitHub\microsoft\IPC.Bond\x64\Debug\IPC.Bond.lib
+
+7. To build Win32 (x86) versions, do the following in the "enable_win32_x86_builds" branches of both IPC and IPC.Bond:
+   (1). Modify bond.cmd:
+        - Accept one more "platform" parameter (Win32/x64)
+        - Add platform name to output subfolder name
+        - Remove CMakeFiles folder and CMakeCache.txt file before build
+   (2). Modify Visual Studio settings for both IPC.sln and IPC.Bond.sln:
+        - Create new solution and project platforms Win32 (for native) and x86 (for managed) from Build > Configuration Manager
+        - Make sure all projects have correct "Platform" setting selected and "Build" checkbox checked for each combination of solution configuration and platform.
+        - LNK1112: module machine type 'x86' conflicts with target machine type 'x64':
+          This error happens on static library projects, and it cannot be solved through VS GUI.
+          Unload the static library projects and open their project files, find "TargetMachine" setting, use "Condition" to set the setting to MachineX64 for x64 platform, and to MachineX86 for Win32 platform.
+        - Because in (1) we add the platform name to the output subfolder of bond, for IPC.Bond.sln we need to change the bond headers path in the "Additional Include Directories", and the bond library path in the "Additional Dependencies" for all projects that reference these settings.
+        - Because the "Managed" project of IPC.Bond.sln uses "..\..\IPC\$(Platform)\$(Configuration)\xxx.dll" to reference IPC submodule's libraries, for all IPC.sln projects, whether native or managed, make sure platform name is added into the output and intermediate directory paths, e.g. "$(SolutionDir)$(Platform)\$(Configuration)\" and "$(Platform)\$(Configuration)\" for C++ projects. Note that for IPC.sln C# projects, the platform name to add to the output folder for x86 should be "Win32" and not "x86", this is because the $(Platform) macro of "Managed" project in IPC.Bond.sln expands to "Win32", not "x86".
+        - For consistency, do the same in adding platform name to the output path for all IPC.Bond.sln projects. Note that for the "Transport" project in IPC.Bond.sln, because it's a C# project, its x86 platform name expands to "x86", not "Win32", we have to edit its project file directly, using "Condition" to make sure its reference paths are correctly set to the "Win32" subfolder of IPC.sln output.
