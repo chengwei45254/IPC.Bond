@@ -1,0 +1,14 @@
+Issues:
+-------
+
+1. Shared memory IPC does not seem to work between 32-bit and 64-bit processes.
+   Worse, when a 64-bit IPC client connects to a 32-bit IPC server, the 64-bit IPC client not only hangs but also causes 32-bit clients to become unable to connect to the server.
+   
+2. How do we enforce endpoint authentication under shared memory IPC?
+
+Probable solution to 1 and 2:
+-----------------------------
+
+Keep using Bond for data serialization and deserialization, but instead of using Microsoft IPC library that uses shared memory, use named pipe as the IPC channel (write it by ourselves).
+For issue 1, this eliminates the shared memory problem between 32-bit and 64-bit processes.
+For issue 2, there are GetNamedPipeClientProcessId()/GetNamedPipeServerProcessId() Win32 API that can be used to authenticate the endpoints (e.g. pid -> image path -> sign check).
